@@ -3,7 +3,7 @@ import os
 import zipfile
 import pymysql
 import sys
-# from bs4 import BeautifulSoup
+
 from shutil import rmtree
 
 sql_username = sys.argv[1]
