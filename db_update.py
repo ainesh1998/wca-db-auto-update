@@ -3,6 +3,7 @@ import os
 import zipfile
 import pymysql
 import sys
+import re
 
 from shutil import rmtree
 
@@ -65,14 +66,14 @@ if tries >=3:
     sys.exit()
 
 # UPDATE DB
-db = pymysql.connect("localhost", sql_username, sql_password, sql_db)
+db = pymysql.connect(host="localhost", user=sql_username, password=sql_password, db=sql_db, charset='utf8mb4')
 print("Database connection established")
 cursor = db.cursor()
 
-sql = "USE " + sql_db
+changeDB = "USE " + sql_db
 
 try:
-   cursor.execute(sql)
+   cursor.execute(changeDB)
    db.commit()
    print("Database change successful")
 except:
@@ -80,33 +81,32 @@ except:
    print("Database change failed")
 
 # OPEN FILE AND SPLIT QUERIES
-with open(sqlFile, "r") as file:
-            # Split file in list
-            ret = file.read().split(';')
-            # drop last empty entry
-            ret.pop()
-            queries = ret
 
-# EXECUTE QUERIES
+with open(sqlFile, "r") as file:
+    # Split file in list
+    queries = file.read().split(';')
+    # # drop last empty entry
+    queries.pop()
+
+
+# EXECUTE QUERIES, REJOIN QUERIES IF THEY DON'T WORK
 isSuccess = True
+tempQuery = """"""
 
 for query in queries:
-    tries = 0
-    while tries < 3:
-        try:
-            cursor.execute(sql)
-            db.commit()
-            print("Query successful")
-            break
-        except:
-            db.rollback()
-            print("Query unsuccessful, trying again")
-            tries += 1
+    finalQuery = tempQuery + query
 
-    if tries == 3:
-        print("Aborting database update")
-        isSuccess = False;
-        break
+    try:
+        cursor.execute(finalQuery)
+        db.commit()
+        tempQuery = """"""
+        isSuccess = True
+        print("Query successful")
+
+    except:
+        db.rollback()
+        tempQuery = tempQuery + query + ';'
+        isSuccess = False
 
 if isSuccess:
     print("Database update successful")
