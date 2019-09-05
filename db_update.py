@@ -92,6 +92,7 @@ with open(sqlFile, "r") as file:
 # EXECUTE QUERIES, REJOIN QUERIES IF THEY DON'T WORK
 isSuccess = True
 tempQuery = """"""
+dl = 0
 
 for query in queries:
     finalQuery = tempQuery + query
@@ -101,12 +102,19 @@ for query in queries:
         db.commit()
         tempQuery = """"""
         isSuccess = True
-        print("Query successful")
 
     except:
         db.rollback()
         tempQuery = tempQuery + query + ';'
         isSuccess = False
+
+    # PROGRESS BAR
+    dl += 1
+    done = int(50 * dl / len(queries))
+    sys.stdout.write("\r[%s%s] %d%%" % ('=' * done, ' ' * (50-done), done*2))
+    sys.stdout.flush()
+
+print("\n")
 
 if isSuccess:
     print("Database update successful")
