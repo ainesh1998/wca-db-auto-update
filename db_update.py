@@ -94,6 +94,7 @@ isSuccess = True
 tempQuery = """"""
 dl = 0
 
+print("Executing queries")
 for query in queries:
     finalQuery = tempQuery + query
 
