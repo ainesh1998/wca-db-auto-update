@@ -79,6 +79,7 @@ try:
 except:
    db.rollback()
    print("Database change failed")
+   sys.exit()
 
 # OPEN FILE AND SPLIT QUERIES
 
